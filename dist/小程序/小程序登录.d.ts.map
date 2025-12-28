@@ -1,1 +1,0 @@
-{"version":3,"file":"小程序登录.d.ts","sourceRoot":"","sources":["../../src/小程序/小程序登录.ts"],"names":[],"mappings":"AAGA,OAAO,KAAK,SAAS,MAAM,aAAa,CAAC;AAEzC,MAAM,CAAC,OAAO,OAAO,UAAU;IAC3B,OAAO,CAAC,SAAS,CAAY;gBACjB,SAAS,EAAC,SAAS;IAG/B;;;OAGG;IACU,YAAY,CAAC,OAAO,EAAE,MAAM;qBAUpB,MAAM;kBACT,MAAM;gBACR,MAAM;iBACL,MAAM;gBACP,MAAM;;CAczB"}
