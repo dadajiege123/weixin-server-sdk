@@ -1,6 +1,6 @@
 {
   "name": "weixin-server-sdk",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "一款目标是集成微信所有后端api的nodejs_SDK",
   "keywords": [
     "微信",
