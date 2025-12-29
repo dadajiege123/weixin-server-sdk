@@ -45,16 +45,11 @@ export default class MerchantTransfer {
                 body: body
             }
         )
-        const contentType = response.headers.get('Content-Type') || '';
+
 
         if (response.ok == false) {
-            if (contentType.includes('application/json')) {
-                let { code, message } = await response.json();
-                throw new WeixinSDKErr(`applyTransfer: code:${code}, message:${message}`)
-            } else {
-                const text = await response.text();
-                throw new WeixinSDKErr(`applyTransfer: text:${text}`)
-            }
+            let { code, message } = await response.json();
+            throw new WeixinSDKErr({ code, message })
         } else {
             let data = await response.json() as {
                 out_bill_no: string,
@@ -92,16 +87,12 @@ export default class MerchantTransfer {
             }
         )
 
-        const contentType = response.headers.get('Content-Type') || '';
+
 
         if (response.ok == false) {
-            if (contentType.includes('application/json')) {
-                let { code, message } = await response.json();
-                throw new WeixinSDKErr(`revokeTransfer: code:${code}, message:${message}`)
-            } else {
-                const text = await response.text();
-                throw new WeixinSDKErr(`revokeTransfer: text:${text}`)
-            }
+            let { code, message } = await response.json();
+            throw new WeixinSDKErr({code,message})
+
         } else {
             let data = await response.json() as {
                 out_bill_no: string,
@@ -144,7 +135,7 @@ export default class MerchantTransfer {
 
         if (response.ok == false) {
             let { code, message } = await response.json();
-            throw new WeixinSDKErr(`code:${code}, message:${message}`);
+            throw new WeixinSDKErr({code, message});
         } else {
             let data = await response.json() as {
                 mch_id: string,
@@ -194,7 +185,7 @@ export default class MerchantTransfer {
 
         if (response.ok == false) {
             let { code, message } = await response.json();
-            throw new WeixinSDKErr(`code:${code}, message:${message}`);
+            throw new WeixinSDKErr({code,message});
         } else {
             let data = await response.json() as {
                 mch_id: string,
@@ -216,7 +207,7 @@ export default class MerchantTransfer {
 
     }
 
-    
+
 
 
 

@@ -43,7 +43,7 @@ export default class PhoneNumber {
         if (data.errcode === 0) {
             return data;
         } else {
-            throw new WeixinSDKErr(`code:${data.errcode},msg:${data.errmsg}`);
+            throw new WeixinSDKErr({code:data.errcode, message: data.errmsg});
         }
 
     }

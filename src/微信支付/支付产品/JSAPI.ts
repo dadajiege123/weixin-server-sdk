@@ -3,6 +3,7 @@ import { WeixinSDKErr } from "../../Error.js";
 import WeixinSDK from "../../index.js";
 import * as crypto from 'crypto';
 import type { cent, RFC3339DateStr } from "../../types/global.js";
+import { inspect } from "util";
 
 
 export default class JSAPI {
@@ -39,7 +40,7 @@ export default class JSAPI {
 
         if (response.ok == false) {
             let { code, message } = await response.json();
-            throw new WeixinSDKErr(`code:${code}, message:${message}`);
+            throw new WeixinSDKErr({ code, message });
         } else {
             let { prepay_id } = await response.json() as { prepay_id: string };
             return prepay_id;
@@ -53,19 +54,24 @@ export default class JSAPI {
      * @returns 调起支付方法需要的参数对象
      */
     public invokePayment(prepay_id: string) {
-        //返回预支付交易会话标识, requestPayment小程序调起支付方法参数对象
-        let nonceStr = crypto.randomBytes(16).toString('hex')
-        let currentTime = Date.now() / 1000;
-        let signStr = `${this.weixinSDK.config.WXMP_APPID}\n${currentTime}\n${nonceStr}\nprepay_id=${prepay_id}\n`;
-        const signedStr = crypto.createSign('RSA-SHA256').update(signStr).sign(this.weixinSDK.config.WXPAY_mchApiCert_privateKeyPem, 'base64');
-        return {
-            appid: this.weixinSDK.config.WXMP_APPID,
-            timeStamp: currentTime,
-            nonceStr: nonceStr,
-            package: `prepay_id=${prepay_id}`,
-            signType: 'RSA',
-            paySign: signedStr
+        try {
+            //返回预支付交易会话标识, requestPayment小程序调起支付方法参数对象
+            let nonceStr = crypto.randomBytes(16).toString('hex')
+            let currentTime = Date.now() / 1000;
+            let signStr = `${this.weixinSDK.config.WXMP_APPID}\n${currentTime}\n${nonceStr}\nprepay_id=${prepay_id}\n`;
+            const signedStr = crypto.createSign('RSA-SHA256').update(signStr).sign(this.weixinSDK.config.WXPAY_mchApiCert_privateKeyPem, 'base64');
+            return {
+                appid: this.weixinSDK.config.WXMP_APPID,
+                timeStamp: currentTime,
+                nonceStr: nonceStr,
+                package: `prepay_id=${prepay_id}`,
+                signType: 'RSA',
+                paySign: signedStr
+            }
+        } catch (err) {
+            throw new WeixinSDKErr({ code: 500, message: '调起支付失败', detail: inspect(err) })
         }
+
     }
 
     /**
@@ -97,7 +103,7 @@ export default class JSAPI {
 
         if (response.ok == false) {
             let { code, message } = await response.json();
-            throw new WeixinSDKErr(`code:${code}, message:${message}`);
+            throw new WeixinSDKErr({ code, message });
         } else {
             let data = await response.json() as {
                 appid: string,
@@ -179,7 +185,7 @@ export default class JSAPI {
 
         if (response.ok == false) {
             let { code, message } = await response.json();
-            throw new WeixinSDKErr(`code:${code}, message:${message}`);
+            throw new WeixinSDKErr({ code, message });
         } else {
             let data = await response.json() as {
                 appid: string,
@@ -259,7 +265,7 @@ export default class JSAPI {
             return true;
         } else {
             let { code, message } = await response.json();
-            throw new WeixinSDKErr(`code:${code}, message:${message}`);
+            throw new WeixinSDKErr({ code, message });
         }
 
 
@@ -360,7 +366,7 @@ export default class JSAPI {
             return data
         } else {
             let { code, message } = await response.json();
-            throw new WeixinSDKErr(`applyRefund: code: ${code}: message: ${message}`)
+            throw new WeixinSDKErr({ code, message });
         }
 
     }
@@ -393,7 +399,7 @@ export default class JSAPI {
 
         if (response.ok == false) {
             let { code, message } = await response.json();
-            throw new WeixinSDKErr(`findOneRefundOrder_by_outRefundNo: code:${code}, message:${message}`);
+            throw new WeixinSDKErr({ code, message });
         } else {
             let data = await response.json() as {
                 refund_id: string,
@@ -485,7 +491,7 @@ export default class JSAPI {
 
         if (response.ok == false) {
             let { code, message } = await response.json();
-            throw new WeixinSDKErr(`applyAbnormalRefund: code:${code}, message:${message}`);
+            throw new WeixinSDKErr({ code, message });
         } else {
             let data = await response.json() as {
                 refund_id: string,
@@ -564,7 +570,7 @@ export default class JSAPI {
 
         if (response.ok == false) {
             let { code, message } = await response.json();
-            throw new WeixinSDKErr(`applyTradeBill: code:${code}, message:${message}`);
+            throw new WeixinSDKErr({ code, message });
         } else {
             let data = await response.json() as {
                 hash_type: 'SHA1',
@@ -604,7 +610,7 @@ export default class JSAPI {
 
         if (response.ok == false) {
             let { code, message } = await response.json();
-            throw new WeixinSDKErr(`applyFundflowbill: code:${code}, message:${message}`);
+            throw new WeixinSDKErr({ code, message });
         } else {
             let data = await response.json() as {
                 hash_type: 'SHA1',
@@ -641,16 +647,10 @@ export default class JSAPI {
                 },
             }
         )
-        const contentType = response.headers.get('content-type') || '';
-
+        
         if (response.ok == false) {
-            if (contentType.includes('application/json')) {
-                let { code, message } = await response.json();
-                throw new WeixinSDKErr(`downloadBill: code:${code}, message:${message}`);
-            } else {
-                const text = await response.text();
-                throw new WeixinSDKErr(`downloadBill: 下载账单失败, HTTP状态码: ${response.status}, text: ${text}`);
-            }
+            let { code, message } = await response.json();
+            throw new WeixinSDKErr({ code, message });
         } else {
             let arrayBuffer = await response.arrayBuffer();
             // 2. 转为 Buffer
@@ -666,7 +666,7 @@ export default class JSAPI {
 
                 // 4. 校验
                 if (actualHash !== hash_value.toLowerCase()) {
-                    throw new WeixinSDKErr(`downloadBill: 账单哈希校验失败`);
+                    throw new WeixinSDKErr({code:500, message:'downloadBill:账单哈希校验失败'});
                 }
             }
 
